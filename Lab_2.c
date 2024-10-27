@@ -1,72 +1,183 @@
 ﻿#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <locale.h>
+#define N 5000
 
-int main(void)
-{
-    setvbuf(stdin, NULL, _IONBF, 0);
-    setvbuf(stdout, NULL, _IONBF, 0);
+void shell(int* items, int count) {
+	int i, j, gap, k;
+	int x, a[5];
 
-    int r[] = { 100, 200, 400, 1000, 2000, 4000, 10000 };
+	a[0] = 9; a[1] = 5; a[2] = 3; a[3] = 2; a[4] = 1;
 
-    clock_t start, end; 
+	for (k = 0; k < 5; k++) {
+		gap = a[k];
+		for (i = gap; i < count; ++i) {
+			x = items[i];
+			for (j = i - gap; (x < items[j]) && (j >= 0); j = j - gap)
+				items[j + gap] = items[j];
+			items[j + gap] = x;
+		}
+	}
+}
 
-    FILE* file = fopen("result.csv", "w");
+void qs(int* items, int left, int right) {
+	int i, j;
+	int x, y;
 
-    fprintf(file, "Size;Time\n");
+	i = left; j = right;
 
-    for (int z = 0; z < sizeof(r) / sizeof(int); ++z) {
-        int n = r[z];
+	x = items[(left + right) / 2];
 
-        int** a = (int**)malloc(sizeof(int*) * n);
-        for (int i = 0; i < n; ++i) {
-            a[i] = (int*)malloc(sizeof(int) * n);
-        }
+	do {
+		while ((items[i] < x) && (i < right)) i++;
+		while ((x < items[j]) && (j > left)) j--;
 
-        int** b = (int**)malloc(sizeof(int*) * n);
-        for (int i = 0; i < n; ++i) {
-            b[i] = (int*)malloc(sizeof(int) * n);
-        }
+		if (i <= j) {
+			y = items[i];
+			items[i] = items[j];
+			items[j] = y;
+			i++; j--;
+		}
+	} while (i <= j);
 
-        int** c = (int**)malloc(sizeof(int*) * n);
-        for (int i = 0; i < n; ++i) {
-            c[i] = (int*)malloc(sizeof(int) * n);
-        }
-        srand(time(NULL)); 
-        for (int i = 0; i < n; ++i) {
-            for (int j = 0; j < n; ++j) {
-                a[i][j] = rand() % 100 + 1; 
-                b[i][j] = rand() % 100 + 1; 
-            }
-        }
+	if (left < j) qs(items, left, j);
+	if (i < right) qs(items, i, right);
+}
 
-        int elem_c;
-        start = clock();
-        for (int i = 0; i < n; i++)
-        {
-            for (int j = 0; j < n; j++)
-            {
-                elem_c = 0;
-                for (int x = 0; x < n; x++)
-                {
-                    elem_c = elem_c + a[i][x] * b[x][j];
-                }
-                c[i][j] = elem_c;
-            }
-        }
-        end = clock();
+int compare(const void* x1, const void* x2) {
+	return (*(int*)x1 - *(int*)x2);
+}
 
-        float time_spent = (float)(end - start) / CLOCKS_PER_SEC;
+int main(void) {
+	setlocale(LC_ALL, "Rus");
+	setvbuf(stdin, NULL, _IONBF, 0);
+	setvbuf(stdout, NULL, _IONBF, 0);
 
-        fprintf(file, "%dx%d;%.3f\n", r[z], r[z], time_spent);
-        printf("Size %dx%d: %.3f\n", r[z], r[z], time_spent);
+	clock_t start, end;
 
-        free(a);
-        free(b);
-        free(c);
-    }
+	int i = 0, j = 0, r;
 
-    fclose(file);
+	int* a = (int*)malloc(sizeof(int) * N);
+	int* b = (int*)malloc(sizeof(int) * N);
+	int* c = (int*)malloc(sizeof(int) * N);
 
-    return 0;
+
+	srand(time(NULL));
+	while (i < N) {
+		a[i] = rand() % 100 + 1;
+		b[i] = rand() % 100 + 1;
+		c[i] = rand() % 100 + 1;
+		i++;
+	}
+	printf("Случайный набор\n");
+	start = clock();
+	shell(a, N);
+	end = clock();
+	float spent_time = (float)(end - start) / CLOCKS_PER_SEC;
+	printf("Время выполнения сортировки Шелла: %.3f с\n", spent_time);
+
+	start = clock();
+	qs(b, 0, N - 1);
+	end = clock();
+	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
+	printf("Время выполнения сортировки быстрой сортировки (qs): %.3f с\n", spent_time);
+
+	start = clock();
+	qsort(c, N, sizeof(int), compare);
+	end = clock();
+	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
+	printf("Время выполнения сортировки быстрой сортировки (qsort): %.3f с\n", spent_time);
+
+	i = 0;
+	while (i < N) {
+		a[i] = i + 1;
+		b[i] = i + 1;
+		c[i] = i + 1;
+		i++;
+	}
+	printf("Возрастающий набор\n");
+	start = clock();
+	shell(a, N);
+	end = clock();
+	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
+	printf("Время выполнения сортировки Шелла: %.3f с\n", spent_time);
+
+	start = clock();
+	qs(b, 0, N - 1);
+	end = clock();
+	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
+	printf("Время выполнения сортировки быстрой сортировки (qs): %.3f с\n", spent_time);
+
+	start = clock();
+	qsort(c, N, sizeof(int), compare);
+	end = clock();
+	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
+	printf("Время выполнения сортировки быстрой сортировки (qsort): %.3f с\n", spent_time);
+
+	i = 0;
+	while (i < N) {
+		a[i] = N - i;
+		b[i] = N - i;
+		c[i] = N - i;
+		i++;
+	}
+	printf("Убывающий набор\n");
+	start = clock();
+	shell(a, N);
+	end = clock();
+	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
+	printf("Время выполнения сортировки Шелла: %.3f с\n", spent_time);
+
+	start = clock();
+	qs(b, 0, N - 1);
+	end = clock();
+	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
+	printf("Время выполнения сортировки быстрой сортировки (qs): %.3f с\n", spent_time);
+
+	start = clock();
+	qsort(c, N, sizeof(int), compare);
+	end = clock();
+	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
+	printf("Время выполнения сортировки быстрой сортировки (qsort): %.3f с\n", spent_time);
+
+	i = 0;
+	while (i < N) {
+		if (i < (N / 2)) {
+			a[i] = i + 1;
+			b[i] = i + 1;
+			c[i] = i + 1;
+		}
+		else {
+			a[i] = N - i;
+			b[i] = N - i;
+			c[i] = N - i;
+		}
+		//printf("%d ", b[i]);
+		i++;
+	}
+	printf("Возрастающий до половины набор\n");
+	start = clock();
+	shell(a, N);
+	end = clock();
+	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
+	printf("Время выполнения сортировки Шелла: %.3f с\n", spent_time);
+
+	start = clock();
+	qs(b, 0, N - 1);
+	end = clock();
+	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
+	printf("Время выполнения сортировки быстрой сортировки (qs): %.3f с\n", spent_time);
+
+	start = clock();
+	qsort(c, N, sizeof(int), compare);
+	end = clock();
+	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
+	printf("Время выполнения сортировки Шелла (qsort): %.3f с\n", spent_time);
+
+	free(a);
+	free(b);
+	free(c);
+
+	return(0);
 }
