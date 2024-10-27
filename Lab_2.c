@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <locale.h>
-#define N 5000
+#define N 500000
 
 void shell(int* items, int count) {
 	int i, j, gap, k;
@@ -62,6 +62,7 @@ int main(void) {
 	int* b = (int*)malloc(sizeof(int) * N);
 	int* c = (int*)malloc(sizeof(int) * N);
 
+	FILE* file = fopen("result2.csv", "w");
 
 	srand(time(NULL));
 	while (i < N) {
@@ -70,24 +71,31 @@ int main(void) {
 		c[i] = rand() % 100 + 1;
 		i++;
 	}
+	fprintf(file, "Сортировка спиcка из %d элементов\n", N);
+	printf("Сортировка спиcка из %d элементов\n", N);
+	fprintf(file, ";Сортировка;Время, с\n");
+	fprintf(file, "Случайный набор\n");
 	printf("Случайный набор\n");
 	start = clock();
 	shell(a, N);
 	end = clock();
 	float spent_time = (float)(end - start) / CLOCKS_PER_SEC;
-	printf("Время выполнения сортировки Шелла: %.3f с\n", spent_time);
+	fprintf(file, ";Сортировка Шелла;%.3f\n", spent_time);
+	printf("Сортировка Шелла;%.3f\n", spent_time);
 
 	start = clock();
 	qs(b, 0, N - 1);
 	end = clock();
 	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
-	printf("Время выполнения сортировки быстрой сортировки (qs): %.3f с\n", spent_time);
+	fprintf(file, ";Быстрая сортировка (qs);%.3f\n", spent_time);
+	printf("Быстрая сортировка (qs);%.3f\n", spent_time);
 
 	start = clock();
 	qsort(c, N, sizeof(int), compare);
 	end = clock();
 	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
-	printf("Время выполнения сортировки быстрой сортировки (qsort): %.3f с\n", spent_time);
+	fprintf(file, ";Быстрая сортировка (qsort);%.3f\n", spent_time);
+	printf("Быстрая сортировка (qsort);%.3f\n", spent_time);
 
 	i = 0;
 	while (i < N) {
@@ -96,24 +104,32 @@ int main(void) {
 		c[i] = i + 1;
 		i++;
 	}
+	fprintf(file, "Возрастающий набор\n");
 	printf("Возрастающий набор\n");
 	start = clock();
 	shell(a, N);
 	end = clock();
 	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
-	printf("Время выполнения сортировки Шелла: %.3f с\n", spent_time);
+	fprintf(file, ";Сортировка Шелла;%.3f\n", spent_time);
+	printf("Сортировка Шелла;%.3f\n", spent_time);
+
+
 
 	start = clock();
 	qs(b, 0, N - 1);
 	end = clock();
 	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
-	printf("Время выполнения сортировки быстрой сортировки (qs): %.3f с\n", spent_time);
+	fprintf(file, ";Быстрая сортировка (qs);%.3f\n", spent_time);
+	printf("Быстрая сортировка (qs);%.3f\n", spent_time);
+
 
 	start = clock();
 	qsort(c, N, sizeof(int), compare);
 	end = clock();
 	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
-	printf("Время выполнения сортировки быстрой сортировки (qsort): %.3f с\n", spent_time);
+	fprintf(file, ";Быстрая сортировка (qsort);%.3f\n", spent_time);
+	printf("Быстрая сортировка (qsort);%.3f\n", spent_time);
+
 
 	i = 0;
 	while (i < N) {
@@ -122,24 +138,28 @@ int main(void) {
 		c[i] = N - i;
 		i++;
 	}
+	fprintf(file, "Убывающий набор\n");
 	printf("Убывающий набор\n");
 	start = clock();
 	shell(a, N);
 	end = clock();
 	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
-	printf("Время выполнения сортировки Шелла: %.3f с\n", spent_time);
+	fprintf(file, ";Сортировка Шелла;%.3f\n", spent_time);
+	printf("Сортировка Шелла;%.3f\n", spent_time);
 
 	start = clock();
 	qs(b, 0, N - 1);
 	end = clock();
 	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
-	printf("Время выполнения сортировки быстрой сортировки (qs): %.3f с\n", spent_time);
+	fprintf(file, ";Быстрая сортировка (qs);%.3f\n", spent_time);
+	printf("Быстрая сортировка (qs);%.3f\n", spent_time);
 
 	start = clock();
 	qsort(c, N, sizeof(int), compare);
 	end = clock();
 	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
-	printf("Время выполнения сортировки быстрой сортировки (qsort): %.3f с\n", spent_time);
+	fprintf(file, ";Быстрая сортировка (qsort);%.3f\n", spent_time);
+	printf("Быстрая сортировка (qsort);%.3f\n", spent_time);
 
 	i = 0;
 	while (i < N) {
@@ -156,28 +176,35 @@ int main(void) {
 		//printf("%d ", b[i]);
 		i++;
 	}
+	fprintf(file, "Возрастающий до половины набор\n");
 	printf("Возрастающий до половины набор\n");
 	start = clock();
 	shell(a, N);
 	end = clock();
 	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
-	printf("Время выполнения сортировки Шелла: %.3f с\n", spent_time);
+	fprintf(file, ";Сортировка Шелла;%.3f\n", spent_time);
+	printf("Сортировка Шелла;%.3f\n", spent_time);
 
-	start = clock();
-	qs(b, 0, N - 1);
-	end = clock();
-	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
-	printf("Время выполнения сортировки быстрой сортировки (qs): %.3f с\n", spent_time);
+	//start = clock();
+	//qs(b, 0, N - 1);
+	//end = clock();
+	//spent_time = (float)(end - start) / CLOCKS_PER_SEC;
+	//spent_time = .0;
+	//fprintf(file, ";Быстрая сортировка (qs);%.3f\n", spent_time);
+	fprintf(file, ";Быстрая сортировка (qs);-\n");
+	printf("Быстрая сортировка (qs);-\n");
 
 	start = clock();
 	qsort(c, N, sizeof(int), compare);
 	end = clock();
 	spent_time = (float)(end - start) / CLOCKS_PER_SEC;
-	printf("Время выполнения сортировки Шелла (qsort): %.3f с\n", spent_time);
+	fprintf(file, ";Быстрая сортировка (qsort);%.3f\n", spent_time);
+	printf("Быстрая сортировка (qsort);%.3f\n", spent_time);
+
 
 	free(a);
 	free(b);
 	free(c);
-
+	fclose(file);
 	return(0);
 }
